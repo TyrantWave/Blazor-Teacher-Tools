@@ -6,3 +6,5 @@ artifacts/
 msbuild.binlog
 .vscode/
 *.binlog
+dist/
+.firebase/
