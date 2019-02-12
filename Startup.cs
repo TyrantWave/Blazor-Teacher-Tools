@@ -6,16 +6,16 @@ using Blazor.Extensions.Storage;
 
 namespace TeacherTools
 {
-    public class Startup
-    {
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddStorage();
-        }
+	public class Startup
+	{
+		public void ConfigureServices(IServiceCollection services)
+		{
+			services.AddStorage();
+		}
 
-        public void Configure(IBlazorApplicationBuilder app)
-        {
-            app.AddComponent<App>("app");
-        }
-    }
+		public void Configure(IBlazorApplicationBuilder app)
+		{
+			app.AddComponent<App>("app");
+		}
+	}
 }
