@@ -1,5 +1,7 @@
 @page "/"
-
+@using Newtonsoft.Json;
+@using Blazor.Extensions.Storage;
+@inject LocalStorage localStorage
 
 <h1 class="title">
 Phrase Chooser
@@ -13,13 +15,38 @@ Phrase Chooser
 </div>
 <hr class="my-4">
 <div>
-    <textarea class="form-control" style="min-height: 200px;" aria-label="Phrases go here, one per line" 
+    <textarea class="form-control my-2" style="min-height: 200px;" aria-label="Phrases go here, one per line" 
             bind="@PhraseBox">
     </textarea>
+    <div class="form-inline">
+        <input type="text" class="form-control mr-1 flex-fill" bind="@SaveTitle" />
+        <button type="button" class="btn btn-success" onclick="@SaveList">Save</button>
+    </div>
+</div>
+<div class="row">
+@foreach (var item in storedLists.Keys)
+{
+    <div class=" col-2 m-3">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                @item
+                <button type="button" class="btn btn-outline-danger btn-sm float-right" onclick="@(() => DeleteList(item))">
+                    <span class="oi oi-trash" aria-hidden="true"></span>
+                </button>
+            </div>
+            <ul class="list-group list-group-flush">
+                @foreach (var p in storedLists[item].Take(5))
+                {
+                    <li class="list-group-item">@p</li>
+                }
+            </ul>
+        </div>  
+    </div>
+}
 </div>
 
 @functions {
-    IList<string> phrases;
+    List<string> phrases;
     Random rand = new Random();
 
     string CurrentPhrase = "";
@@ -37,11 +64,36 @@ Phrase Chooser
         }
     }
 
+    string SaveTitle = "";
+    Dictionary<string, List<string>> storedLists = new Dictionary<string, List<string>>();
+
+    protected override async Task OnInitAsync()
+    {
+        var fromLocal = await localStorage.GetItem<string>("phraseLists");
+        if (fromLocal != null) {
+            storedLists = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(fromLocal);
+        }
+    }
+
     void NewPhrase() 
     {
-        var i = rand.Next(0, phrases.Count()-1);
+        var i = rand.Next(0, phrases.Count());
         CurrentPhrase = phrases[i];
         phrases.RemoveAt(i);
         PhraseBox = string.Join("\n", phrases);
+    }
+
+    void SaveList()
+    {
+        storedLists[SaveTitle] = phrases;
+        var jsonLists = JsonConvert.SerializeObject(storedLists);
+        localStorage.SetItem<string>("phraseLists", jsonLists);
+    }
+
+    void DeleteList(string deleteKey)
+    {
+        storedLists.Remove(deleteKey);
+        var jsonLists = JsonConvert.SerializeObject(storedLists);
+        localStorage.SetItem<string>("phraseLists", jsonLists);
     }
 }
