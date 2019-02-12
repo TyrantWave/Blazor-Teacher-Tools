@@ -1,0 +1,47 @@
+@page "/"
+
+
+<h1 class="title">
+Phrase Chooser
+</h1>
+
+<div class="jumbotron">
+    <h1 class="display-3 text-primary">@CurrentPhrase</h1>
+</div>
+<div class="row justify-content-center">
+    <button type="button" style="width: 200px;" class="btn btn-primary btn-large mx-auto" onclick="@NewPhrase">New Phrase</button>
+</div>
+<hr class="my-4">
+<div>
+    <textarea class="form-control" style="min-height: 200px;" aria-label="Phrases go here, one per line" 
+            bind="@PhraseBox">
+    </textarea>
+</div>
+
+@functions {
+    IList<string> phrases;
+    Random rand = new Random();
+
+    string CurrentPhrase = "";
+    string phraseBox = "";
+    string PhraseBox
+    {
+        set
+        {
+            phraseBox = value;
+            phrases = phraseBox.Split('\n').ToList();
+        }
+        get
+        {
+            return phraseBox;
+        }
+    }
+
+    void NewPhrase() 
+    {
+        var i = rand.Next(0, phrases.Count()-1);
+        CurrentPhrase = phrases[i];
+        phrases.RemoveAt(i);
+        PhraseBox = string.Join("\n", phrases);
+    }
+}
