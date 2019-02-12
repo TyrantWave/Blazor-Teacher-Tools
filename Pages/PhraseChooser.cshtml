@@ -34,7 +34,7 @@
 <div class="row">
 @foreach (var item in storedLists.Keys)
 {
-    <div class="col-2 m-3" onclick="@(() => LoadList(item))">
+    <div class="col-md-2 m-2" onclick="@(() => LoadList(item))">
         <div class='card @(item == SaveTitle ? "border-primary" : "border-secondary")'>
             <div class='card-header  @(item == SaveTitle ? "text-white bg-primary" : "bg-secondary")'>
                 <h4 class="card-title">
