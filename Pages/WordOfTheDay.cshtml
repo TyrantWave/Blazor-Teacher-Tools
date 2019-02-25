@@ -4,9 +4,12 @@
 
 <div class="container-fluid">
     <div class="row">   
-        <h1 class="col flex-fill">
+        <h1 class="col">
             Word of the Day
         </h1> 
+        <a class="col-auto" href="https://www.wordnik.com" rel="noopener" target="_blank">
+            <img src="/media/wordnik_badge_a2.png" alt="Wordnik"/>
+        </a>
     </div>
 @if (word == null)
 {
@@ -18,7 +21,11 @@ else
         <div class="col ">
             <div class="jumbotron">
                 <div class="container text-center">
-                    <h1 class="display-3 text-primary">@word.word</h1>
+                    <h1 class="display-3 text-primary">
+                        <a href="https://www.wordnik.com/words/@word.word" rel="noopener" target="_blank">
+                            @word.word
+                        </a>
+                    </h1>
                     <p class="lead">
                     @foreach (var h in hyphenation)
                     {
@@ -39,30 +46,78 @@ else
             </div>
         </div>
     </div>
-    <div class="row">
+    @if (word.definitions != null)
+    {
+    <div class="row mb-2">
         <div class="col">
             <h2>Definitions</h2>
             <div class="w-100"></div>
             <ul class="list-group">
-            @foreach (var d in @word.definitions)
+            @foreach (var definition in word.definitions)
             {
                 <li class="list-group-item">
-                    <span class="text-primary"><em>@d.partOfSpeech</em></span> @d.text
+                    <span class="text-primary"><em>@definition.partOfSpeech</em></span> @definition.text
                 </li>
             }
             </ul>
         </div>
     </div>
+    }
+
+    @if (word.examples != null)
+    {
+    <div class="row mb-2">
+        <div class="col">
+            <h2>Examples</h2>
+            <div class="w-100"></div>
+            @foreach (var example in word.examples)
+            {
+                <blockquote class="blockquote">
+                    <p class="mb-0">
+                        @example.text
+                    </p>
+                    <footer class="blockquote-footer"><span class="text-primary">@example.title</span> from 
+                        <cite title="Source URL">
+                            <a href=@example.url rel="noopener" target="_blank" class="text-muted">@example.url</a>
+                        </cite>
+                    </footer>
+                </blockquote>
+            }
+        </div>
+    </div>
+    }
+
+    @if (word.note != null)
+    {
+    <div class="row mb-2">
+        <div class="col">
+            <h2 class="text-info">Note</h2>
+            <div class="w-100"></div>
+            <p>@word.note</p>
+        </div>
+    </div>
+    }
+
+    @if (scrabbleScore > 0)
+    {
+    <div class="row mb-2">
+        <div class="col">
+            <h3>Scrabble Score: <span class="badge badge-success">@scrabbleScore</span></h3>
+        </div>
+    </div>
+    }
 }
 </div>
 
 @functions {
     DayWord word;
     List<Hyphenation> hyphenation;
+    int scrabbleScore = 0;
 
     protected override async Task OnInitAsync()
     {
         word = await dayWordService.GetWordAsync();
         hyphenation = await dayWordService.GetHyphenationAsync(word.word);
+        scrabbleScore = await dayWordService.GetScrabbleScoreAsync(word.word);
     }
 }

@@ -23,5 +23,11 @@ namespace TeacherTools.Services
         {
             return await http.GetJsonAsync<List<Hyphenation>>("sample-data/hyphenation.json");
         }
+
+        public async Task<int> GetScrabbleScoreAsync(string word)
+        {
+            var response = await http.GetJsonAsync<ScrabbleScore>("sample-data/scrabble.json");
+            return response.value;
+        }
     }
 }
