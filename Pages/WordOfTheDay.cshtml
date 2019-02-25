@@ -8,27 +8,61 @@
             Word of the Day
         </h1> 
     </div>
+@if (word == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
     <div class="row">
-        @if (word == null)
-        {
-            <p><em>Loading...</em></p>
-        }
-        else
-        {
-            <div class="col ">
-                <div class="jumbotron">
-                    <h1 class="display-3 text-primary">@word.Word</h1>
+        <div class="col ">
+            <div class="jumbotron">
+                <div class="container text-center">
+                    <h1 class="display-3 text-primary">@word.word</h1>
+                    <p class="lead">
+                    @foreach (var h in hyphenation)
+                    {
+                        @if (h != hyphenation.First())
+                        {
+                            <span>&middot;</span>
+                        }
+                        @if (h.type != null)
+                        {
+                            <em>@h.text</em>
+                        } else
+                        {
+                            @h.text
+                        }
+                    }
+                    </p>
                 </div>
             </div>
-        }
+        </div>
     </div>
+    <div class="row">
+        <div class="col">
+            <h2>Definitions</h2>
+            <div class="w-100"></div>
+            <ul class="list-group">
+            @foreach (var d in @word.definitions)
+            {
+                <li class="list-group-item">
+                    <span class="text-primary"><em>@d.partOfSpeech</em></span> @d.text
+                </li>
+            }
+            </ul>
+        </div>
+    </div>
+}
 </div>
 
 @functions {
     DayWord word;
+    List<Hyphenation> hyphenation;
 
     protected override async Task OnInitAsync()
     {
         word = await dayWordService.GetWordAsync();
+        hyphenation = await dayWordService.GetHyphenationAsync(word.word);
     }
 }

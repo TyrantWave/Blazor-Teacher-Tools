@@ -18,5 +18,10 @@ namespace TeacherTools.Services
         {
             return await http.GetJsonAsync<DayWord>("sample-data/word.json");
         }
+
+        public async Task<List<Hyphenation>> GetHyphenationAsync(string word)
+        {
+            return await http.GetJsonAsync<List<Hyphenation>>("sample-data/hyphenation.json");
+        }
     }
 }
