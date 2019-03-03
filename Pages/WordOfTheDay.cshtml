@@ -1,15 +1,12 @@
 @page "/wotd"
 @using TeacherTools.Services;
-@inject DayWordService dayWordService;
+@inject WordInfoService wordInfoService;
 
 <div class="container-fluid">
     <div class="row">   
         <h1 class="col">
             Word of the Day
         </h1> 
-        <a class="col-auto" href="https://www.wordnik.com" rel="noopener" target="_blank">
-            <img src="/media/wordnik_badge_a2.png" alt="Wordnik"/>
-        </a>
     </div>
 @if (word == null)
 {
@@ -22,102 +19,108 @@ else
             <div class="jumbotron">
                 <div class="container text-center">
                     <h1 class="display-3 text-primary">
-                        <a href="https://www.wordnik.com/words/@word.word" rel="noopener" target="_blank">
-                            @word.word
-                        </a>
+                        @word.Word
                     </h1>
                     <p class="lead">
-                    @foreach (var h in hyphenation)
+                    @foreach (var s in word.Syllables.List)
                     {
-                        @if (h != hyphenation.First())
+                        @if (s != word.Syllables.List.First())
                         {
                             <span>&middot;</span>
                         }
-                        @if (h.type != null)
-                        {
-                            <em>@h.text</em>
-                        } else
-                        {
-                            @h.text
-                        }
+                        @s
                     }
                     </p>
+                    @if (word.Pronunciation != null)
+                    {
+                    <p class="lead">
+                        @if (word.Pronunciation.All != null)
+                        {
+                            <span class="badge badge-info">Common</span> @word.Pronunciation.All
+                        }
+                        &nbsp;
+                        @if (word.Pronunciation.Noun != null)
+                        {
+                            <span class="badge badge-info">Noun</span> @word.Pronunciation.Noun
+                        }
+                        &nbsp;
+                        @if (word.Pronunciation.Verb != null)
+                        {
+                            <span class="badge badge-info">Verb</span> @word.Pronunciation.Verb
+                        }
+                    </p>
+                    }
                 </div>
             </div>
         </div>
     </div>
-    @if (word.definitions != null)
+    @if (word.Results != null)
     {
-    <div class="row mb-2">
-        <div class="col">
-            <h2>Definitions</h2>
-            <div class="w-100"></div>
-            <ul class="list-group">
-            @foreach (var definition in word.definitions)
+        @foreach (var result in word.Results)
+        {
+            <div class="row mb-2">
+                <div class="col">
+                    <div class="card border-primary">
+                        <div class="card-header">
+                            <h2>
+                                <span class="badge badge-primary"><em>@result.PartOfSpeech</em></span> @result.Definition
+                            </h2>
+                        </div>
+            <div class="card-body">
+            @if (result.Examples != null)
             {
-                <li class="list-group-item">
-                    <span class="text-primary"><em>@definition.partOfSpeech</em></span> @definition.text
-                </li>
+                <h3 class="ma-2">Examples</h3>
+                <ul class="list-group">
+                @foreach (var example in result.Examples)
+                {
+                    <li class="list-group-item">
+                        @example
+                    </li>
+                }
+                </ul>
             }
-            </ul>
-        </div>
-    </div>
-    }
-
-    @if (word.examples != null)
-    {
-    <div class="row mb-2">
-        <div class="col">
-            <h2>Examples</h2>
-            <div class="w-100"></div>
-            @foreach (var example in word.examples)
+            @if (result.Synonyms != null)
             {
-                <blockquote class="blockquote">
-                    <p class="mb-0">
-                        @example.text
-                    </p>
-                    <footer class="blockquote-footer"><span class="text-primary">@example.title</span> from 
-                        <cite title="Source URL">
-                            <a href=@example.url rel="noopener" target="_blank" class="text-muted">@example.url</a>
-                        </cite>
-                    </footer>
-                </blockquote>
+                <h3 class="ma-2">Synonyms</h3>
+                @foreach (var s in result.Synonyms)
+                {
+                    <span class="badge badge-secondary tag">@s</span>
+                }
             }
-        </div>
-    </div>
+            @if (result.TypeOf != null)
+            {
+                <h3 class="ma-2">See Also</h3>
+                @foreach (var t in result.TypeOf)
+                {
+                    <span class="badge badge-secondary tag">@t</span>
+                }
+            }
+                
+            </div>
+                    </div>
+                </div>
+            </div>
+        }
     }
 
-    @if (word.note != null)
+    @if (word.Frequency != null)
     {
-    <div class="row mb-2">
-        <div class="col">
-            <h2 class="text-info">Note</h2>
-            <div class="w-100"></div>
-            <p>@word.note</p>
+        <div class="row">
+            <div class="col">
+                <h2>
+                    Word Frequency: <span class="badge badge-success">@word.Frequency</span>
+                </h2>
+            </div>
         </div>
-    </div>
-    }
-
-    @if (scrabbleScore > 0)
-    {
-    <div class="row mb-2">
-        <div class="col">
-            <h3>Scrabble Score: <span class="badge badge-success">@scrabbleScore</span></h3>
-        </div>
-    </div>
     }
 }
 </div>
 
 @functions {
-    DayWord word;
-    List<Hyphenation> hyphenation;
-    int scrabbleScore = 0;
+    WordInfo word;
 
     protected override async Task OnInitAsync()
     {
-        word = await dayWordService.GetWordAsync();
-        hyphenation = await dayWordService.GetHyphenationAsync(word.word);
-        scrabbleScore = await dayWordService.GetScrabbleScoreAsync(word.word);
+        word = await wordInfoService.GetWordAsync();
     }
 }

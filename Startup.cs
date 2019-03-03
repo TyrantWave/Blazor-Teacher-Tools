@@ -7,17 +7,17 @@ using TeacherTools.Services;
 
 namespace TeacherTools
 {
-    public class Startup
-    {
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddStorage();
-            services.AddSingleton<DayWordService>();
-        }
+	public class Startup
+	{
+		public void ConfigureServices(IServiceCollection services)
+		{
+			services.AddStorage();
+			services.AddSingleton<WordInfoService>();
+		}
 
-        public void Configure(IBlazorApplicationBuilder app)
-        {
-            app.AddComponent<App>("app");
-        }
-    }
+		public void Configure(IBlazorApplicationBuilder app)
+		{
+			app.AddComponent<App>("app");
+		}
+	}
 }
