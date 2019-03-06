@@ -1,5 +1,8 @@
 @page "/wotd"
+@using Newtonsoft.Json;
+@using Blazor.Extensions.Storage;
 @using TeacherTools.Services;
+@inject LocalStorage localStorage
 @inject WordInfoService wordInfoService;
 
 <div class="container-fluid">
@@ -121,6 +124,31 @@ else
 
     protected override async Task OnInitAsync()
     {
-        word = await wordInfoService.GetWordAsync();
+        word = await GetWordOfDay();
+    }
+
+    async Task<WordInfo> GetWordOfDay()
+    {
+        var lastkey = "last-word";
+        var currentWord = "word-of-day";
+        var today = DateTime.Today;
+        
+        var lastFetchedStore = await localStorage.GetItem<string>(lastkey);
+        var lastFetched = lastFetchedStore == null ? new DateTime() : DateTime.Parse(lastFetchedStore);
+
+        WordInfo result;
+
+        if (lastFetched.Date == today.Date)
+        {
+            var fromStorage = await localStorage.GetItem<string>(currentWord);
+            result = WordInfo.FromJson(fromStorage);
+        }
+        else
+        {
+            result = await wordInfoService.GetRandomWordAsync();
+            await localStorage.SetItem<string>(lastkey, today.ToShortDateString());
+            await localStorage.SetItem<string>(currentWord, result.ToJson());
+        }
+        return result;  
     }
 }
