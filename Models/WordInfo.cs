@@ -56,6 +56,9 @@ namespace TeacherTools.Services
 		[JsonProperty("synonyms", NullValueHandling = NullValueHandling.Ignore)]
 		public List<string> Synonyms { get; set; }
 
+		[JsonProperty("antonyms", NullValueHandling = NullValueHandling.Ignore)]
+		public List<string> Antonyms { get; set; }
+
 		[JsonProperty("typeOf", NullValueHandling = NullValueHandling.Ignore)]
 		public List<string> TypeOf { get; set; }
 

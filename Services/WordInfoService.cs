@@ -25,7 +25,10 @@ namespace TeacherTools.Services
 		public async Task<WordInfo> GetWordAsync(string word)
 		{
 			var request = new Uri(baseUrl, word);
-			return await http.GetJsonAsync<WordInfo>(request.ToString());
+			Console.WriteLine(Uri.EscapeUriString(request.ToString()));
+			WordInfo result = await http.GetJsonAsync<WordInfo>(Uri.EscapeUriString(request.ToString()));
+			Console.WriteLine(result.Word);
+			return result;
 		}
 
 		public async Task<WordInfo> GetRandomWordAsync()

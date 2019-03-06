@@ -24,16 +24,19 @@ else
                     <h1 class="display-3 text-primary">
                         @word.Word
                     </h1>
-                    <p class="lead">
-                    @foreach (var s in word.Syllables.List)
+                    @if (word.Syllables != null)
                     {
-                        @if (s != word.Syllables.List.First())
+                        <p class="lead">
+                        @foreach (var s in word.Syllables.List)
                         {
-                            <span>&middot;</span>
+                            @if (s != word.Syllables.List.First())
+                            {
+                                <span>&middot;</span>
+                            }
+                            @s
                         }
-                        @s
+                        </p>
                     }
-                    </p>
                     @if (word.Pronunciation != null)
                     {
                     <p class="lead">
@@ -87,7 +90,21 @@ else
                 <h3 class="ma-2">Synonyms</h3>
                 @foreach (var s in result.Synonyms)
                 {
-                    <span class="badge badge-secondary tag">@s</span>
+                    <button type="button" onclick="@(() => GetWord(s))" 
+                            class="btn btn-sm btn-secondary tag">
+                        @s
+                    </button>
+                }
+            }
+            @if (result.Antonyms != null)
+            {
+                <h3 class="ma-2">Antonyms</h3>
+                @foreach (var a in result.Antonyms)
+                {
+                    <button type="button" onclick="@(() => GetWord(a))" 
+                            class="btn btn-sm btn-secondary tag">
+                        @a
+                    </button>
                 }
             }
             @if (result.TypeOf != null)
@@ -95,7 +112,10 @@ else
                 <h3 class="ma-2">See Also</h3>
                 @foreach (var t in result.TypeOf)
                 {
-                    <span class="badge badge-secondary tag">@t</span>
+                    <button type="button" onclick="@(() => GetWord(t))" 
+                            class="btn btn-sm btn-secondary tag">
+                        @t
+                    </button>
                 }
             }
                 
@@ -150,5 +170,11 @@ else
             await localStorage.SetItem<string>(currentWord, result.ToJson());
         }
         return result;  
+    }
+
+    async Task GetWord(string query)
+    {
+        word = null;
+        word = await wordInfoService.GetWordAsync(query);
     }
 }
