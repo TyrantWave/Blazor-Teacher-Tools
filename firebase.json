@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist",
+    "public": "bin/Release/netstandard2.0/publish/TeacherTools/dist",
     "ignore": [
       "firebase.json",
       "**/.*",
