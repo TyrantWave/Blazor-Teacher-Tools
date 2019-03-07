@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
+using Newtonsoft.Json;
+
 using TeacherTools.Credentials;
 namespace TeacherTools.Services
 {
@@ -25,16 +27,18 @@ namespace TeacherTools.Services
 		public async Task<WordInfo> GetWordAsync(string word)
 		{
 			var request = new Uri(baseUrl, word);
-			return await http.GetJsonAsync<WordInfo>(
+			var resp = await http.GetStringAsync(
 				Uri.EscapeUriString(request.ToString())
 			);
+            return WordInfo.FromJson(resp);
 		}
 
 		public async Task<WordInfo> GetRandomWordAsync()
 		{
 			var request = new UriBuilder(baseUrl);
 			request.Query = "hasDetails=examples,definition&random=true";
-			return await http.GetJsonAsync<WordInfo>(request.ToString());
-		}
+            var resp = await http.GetStringAsync(request.ToString());
+            return WordInfo.FromJson(resp);
+        }
 	}
 }

@@ -27,6 +27,7 @@ namespace TeacherTools.Services
 		public Syllables Syllables { get; set; }
 
 		[JsonProperty("pronunciation", NullValueHandling = NullValueHandling.Ignore)]
+        [JsonConverter(typeof(PronunciationConverter))]
 		public Pronunciation Pronunciation { get; set; }
 
 		[JsonProperty("frequency", NullValueHandling = NullValueHandling.Ignore)]
@@ -97,15 +98,54 @@ namespace TeacherTools.Services
 		public static string ToJson(this WordInfo self) => JsonConvert.SerializeObject(self, TeacherTools.Services.Converter.Settings);
 	}
 
+	public class PronunciationConverter : JsonConverter
+	{
+		public override bool CanConvert(Type objecttype)
+		{
+            return objecttype == typeof(Pronunciation);
+		}
+
+		public override bool CanWrite
+		{
+			get { return false; }
+		}
+
+        public override object ReadJson(JsonReader reader, Type objecttype, object value, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null) return null;
+
+            // Sometimes just a string is returned for the phonetic guide, so populate a basic Pronunciation type
+            if (reader.TokenType == JsonToken.String)
+            {
+                return new Pronunciation
+                {
+                    All = (string)reader.Value,
+                    Noun = null,
+                    Verb = null
+                };
+            }
+
+            var resp = new Pronunciation();
+            serializer.Populate(reader, resp);
+            return resp;
+        }
+
+		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+		{
+			throw new NotImplementedException();
+		}
+	}
+
 	internal static class Converter
 	{
 		public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
 		{
 			MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
 			DateParseHandling = DateParseHandling.None,
-			Converters =
+            Converters =
 			{
-				new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
+				new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal },
+				new PronunciationConverter(),
 			},
 		};
 	}
