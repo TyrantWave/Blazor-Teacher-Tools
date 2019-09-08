@@ -1,17 +1,10 @@
-
-using Microsoft.AspNetCore.Blazor;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
-
-using Newtonsoft.Json;
-
-using TeacherTools.Credentials;
 namespace TeacherTools.Services
 {
-	public class WordInfoService
+    public class WordInfoService
 	{
 		private readonly HttpClient http;
 		private readonly Uri baseUrl = new Uri("https://wordsapiv1.p.mashape.com/words/");

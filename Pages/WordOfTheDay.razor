@@ -1,0 +1,204 @@
+﻿@page "/wotd"
+@using TeacherTools.Services;
+@inject WordInfoService wordInfoService;
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<div class="container-fluid">
+    <div class="row justify-content-between mb-2">   
+        <h1 class="col-sm-auto">
+            Word of the Day
+        </h1> 
+        
+        <div class="col-sm-auto">
+            <div class="row no-gutters">
+                <div class="col">
+                    <input type="text" class="col form-control flex-fill" aria-label="Search" bind=@searchWord/>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="col-auto btn btn-sm btn-success mx-1" aria-label="search button" 
+                            @onclick="() => GetWord(searchWord)">
+                        <span class="oi oi-magnifying-glass" aria-hidden="true"></span>
+                    </button>
+                </div>
+                <div class="col-auto">
+                    <button type="button" class="col-auto btn btn-sm btn-secondary" aria-label="random word" 
+                            @onclick="() => GetRandomWord()">Random</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@if (word == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col ">
+            <div class="jumbotron">
+                <div class="container text-center">
+                    <h1 class="display-3 text-primary">
+                        @word.Word
+                    </h1>
+                    @if (word.Syllables != null)
+                    {
+                        <p class="lead">
+                        @foreach (var s in word.Syllables.List)
+                        {
+                            @if (s != word.Syllables.List.First())
+                            {
+                                <span>&middot;</span>
+                            }
+                            @s
+                        }
+                        </p>
+                    }
+                    @if (word.Pronunciation != null)
+                    {
+                    <p class="lead">
+                        @if (word.Pronunciation.All != null)
+                        {
+                            <span class="badge badge-info">Common</span> @word.Pronunciation.All
+                        }
+                        &nbsp;
+                        @if (word.Pronunciation.Noun != null)
+                        {
+                            <span class="badge badge-info">Noun</span> @word.Pronunciation.Noun
+                        }
+                        &nbsp;
+                        @if (word.Pronunciation.Verb != null)
+                        {
+                            <span class="badge badge-info">Verb</span> @word.Pronunciation.Verb
+                        }
+                    </p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (word.Results != null)
+    {
+        @foreach (var result in word.Results)
+        {
+            <div class="row mb-2">
+                <div class="col">
+                    <div class="card border-primary">
+                        <div class="card-header">
+                            <h2>
+                                <span class="badge badge-primary"><em>@result.PartOfSpeech</em></span> @result.Definition
+                            </h2>
+                        </div>
+            <div class="card-body">
+            @if (result.Examples != null)
+            {
+                <h3 class="ma-2">Examples</h3>
+                <ul class="list-group">
+                @foreach (var example in result.Examples)
+                {
+                    <li class="list-group-item">
+                        @example
+                    </li>
+                }
+                </ul>
+            }
+            @if (result.Synonyms != null)
+            {
+                <h3 class="ma-2">Synonyms</h3>
+                @foreach (var s in result.Synonyms)
+                {
+                    <button type="button" @onclick="(() => GetWord(s))" 
+                            class="btn btn-sm btn-secondary tag">
+                        @s
+                    </button>
+                }
+            }
+            @if (result.Antonyms != null)
+            {
+                <h3 class="ma-2">Antonyms</h3>
+                @foreach (var a in result.Antonyms)
+                {
+                    <button type="button" @onclick="(() => GetWord(a))" 
+                            class="btn btn-sm btn-secondary tag">
+                        @a
+                    </button>
+                }
+            }
+            @if (result.TypeOf != null)
+            {
+                <h3 class="ma-2">See Also</h3>
+                @foreach (var t in result.TypeOf)
+                {
+                    <button type="button" @onclick="(() => GetWord(t))" 
+                            class="btn btn-sm btn-secondary tag">
+                        @t
+                    </button>
+                }
+            }
+                
+            </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+
+    @if (word.Frequency != null)
+    {
+        <div class="row">
+            <div class="col">
+                <h2>
+                    Word Frequency: <span class="badge badge-success">@word.Frequency</span>
+                </h2>
+            </div>
+        </div>
+    }
+}
+</div>
+
+@code {
+    WordInfo word;
+    string searchWord;
+
+    protected override async Task OnInitializedAsync()
+    {
+        word = await GetWordOfDay();
+    }
+
+    async Task<WordInfo> GetWordOfDay()
+    {
+        var lastkey = "last-word";
+        var currentWord = "word-of-day";
+        var today = DateTime.Today;
+        
+        var lastFetchedStore = await localStorage.GetItemAsync<string>(lastkey);
+        var lastFetched = lastFetchedStore == null ? new DateTime() : DateTime.Parse(lastFetchedStore);
+
+        WordInfo result;
+
+        if (lastFetched.Date == today.Date)
+        {
+            var fromStorage = await localStorage.GetItemAsync<string>(currentWord);
+            result = WordInfo.FromJson(fromStorage);
+        }
+        else
+        {
+            result = await wordInfoService.GetRandomWordAsync();
+            await localStorage.SetItemAsync(lastkey, today.ToShortDateString());
+            await localStorage.SetItemAsync(currentWord, result.ToJson());
+        }
+        return result;  
+    }
+
+    async Task GetWord(string query)
+    {
+        if (String.IsNullOrWhiteSpace(searchWord)) return;
+        word = null;
+        word = await wordInfoService.GetWordAsync(query);
+    }
+
+    async Task GetRandomWord()
+    {
+        word = null;
+        word = await wordInfoService.GetRandomWordAsync();
+    }
+}
