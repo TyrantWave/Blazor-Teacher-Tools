@@ -9,7 +9,7 @@ namespace TeacherTools.Services
     {
         private readonly HttpClient http;
         private readonly Uri baseUrl = new Uri("https://wordsapiv1.p.mashape.com/words/");
-         private WordInfo notFound = new WordInfo
+        private WordInfo notFound = new WordInfo
         {
             Word = "Not Found",
             Pronunciation = new Pronunciation
@@ -21,7 +21,7 @@ namespace TeacherTools.Services
                 Count = 2,
                 List = new List<string> { "not", "found" },
             },
-            Results = new List<Result> 
+            Results = new List<Result>
             {
                 new Result
                 {
