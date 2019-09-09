@@ -10,21 +10,20 @@
         </h1> 
         
         <div class="col-sm-auto">
-            <div class="row no-gutters">
+            <form class="row no-gutters" @onsubmit="@(() => GetWord(searchWord))">
                 <div class="col">
                     <input type="text" class="col form-control flex-fill" aria-label="Search" @bind="searchWord"/>
                 </div>
                 <div class="col-auto">
-                    <button type="button" class="col-auto btn btn-sm btn-success mx-1" aria-label="search button" 
-                            @onclick="() => GetWord(searchWord)">
+                    <button type="submit" class="col-auto btn btn-sm btn-success mx-1" aria-label="search word">
                         <span class="oi oi-magnifying-glass" aria-hidden="true"></span>
                     </button>
                 </div>
                 <div class="col-auto">
                     <button type="button" class="col-auto btn btn-sm btn-secondary" aria-label="random word" 
-                            @onclick="() => GetRandomWord()">Random</button>
+                            @onclick="GetRandomWord">Random</button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 @if (word == null)
@@ -106,7 +105,7 @@ else
                 <h3 class="ma-2">Synonyms</h3>
                 @foreach (var s in result.Synonyms)
                 {
-                    <button type="button" @onclick="(() => GetWord(s))" 
+                    <button type="button" @onclick="@(() => GetWord(s))" 
                             class="btn btn-sm btn-secondary tag">
                         @s
                     </button>
@@ -117,7 +116,7 @@ else
                 <h3 class="ma-2">Antonyms</h3>
                 @foreach (var a in result.Antonyms)
                 {
-                    <button type="button" @onclick="(() => GetWord(a))" 
+                    <button type="button" @onclick="@(() => GetWord(a))" 
                             class="btn btn-sm btn-secondary tag">
                         @a
                     </button>
@@ -128,7 +127,7 @@ else
                 <h3 class="ma-2">See Also</h3>
                 @foreach (var t in result.TypeOf)
                 {
-                    <button type="button" @onclick="(() => GetWord(t))" 
+                    <button type="button" @onclick="@(() => GetWord(t))" 
                             class="btn btn-sm btn-secondary tag">
                         @t
                     </button>
@@ -191,14 +190,16 @@ else
 
     async Task GetWord(string query)
     {
-        if (String.IsNullOrWhiteSpace(searchWord)) return;
+        if (String.IsNullOrWhiteSpace(query)) return;
         word = null;
         word = await wordInfoService.GetWordAsync(query);
+        searchWord = null;
     }
 
     async Task GetRandomWord()
     {
         word = null;
         word = await wordInfoService.GetRandomWordAsync();
+        searchWord = null;
     }
 }
