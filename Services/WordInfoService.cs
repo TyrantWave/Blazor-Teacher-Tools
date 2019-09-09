@@ -9,7 +9,7 @@ namespace TeacherTools.Services
     {
         private readonly HttpClient http;
         private readonly Uri baseUrl = new Uri("https://wordsapiv1.p.mashape.com/words/");
-     	private WordInfo notFound = new WordInfo
+         private WordInfo notFound = new WordInfo
         {
             Word = "Not Found",
             Pronunciation = new Pronunciation
@@ -22,14 +22,14 @@ namespace TeacherTools.Services
                 List = new List<string> { "not", "found" },
             },
             Results = new List<Result> 
-			{
+            {
                 new Result
                 {
-					Definition = "word not found",
-					PartOfSpeech = "404",
-					Synonyms = new List<string> { "unfound", "undiscovered" },
-					Antonyms = new List<string> { "found", "discovered" }
-				}
+                    Definition = "word not found",
+                    PartOfSpeech = "404",
+                    Synonyms = new List<string> { "unfound", "undiscovered" },
+                    Antonyms = new List<string> { "found", "discovered" }
+                }
             }
         };
 
@@ -60,10 +60,10 @@ namespace TeacherTools.Services
             return WordInfo.FromJson(resp);
         }
 
-		public WordInfo NotFound(string query)
-		{
-			notFound.Results[0].Definition = $"word {query} not found";
-			return notFound;
-		}
+        public WordInfo NotFound(string query)
+        {
+            notFound.Results[0].Definition = $"word {query} not found";
+            return notFound;
+        }
     }
 }
